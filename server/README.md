@@ -9,6 +9,8 @@ Created with Node, Typescript, Express, and MongoDB/Mongoose.
 
 NOTE: The frontend will only work if the `/client-dist` folder is populated from the "prepare for production" steps in the client readme. Once this is done, the front end can be found at http://localhost:3000 when you run the server with the steps above.
 
+NOTE: The port can optionally be changed in the .env file. If the port is not present in the .env file, it is defaulted to port 3000.
+
 ### Prepare for production
 NOTE: The docker image will do this for you automatically. Only do these steps if you would like to build it manually.
 - Confirm that the `/client-dist` is full (can be done through the "prepare for production" steps in the client readme).
