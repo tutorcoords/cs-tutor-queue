@@ -1,10 +1,6 @@
 import mongoose from 'mongoose';
 
-if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL environment variable is not defined');
-}
-
-const dbUrl = process.env.DATABASE_URL;
+const dbUrl = process.env.DATABASE_URL || "";
 const Schema = mongoose.Schema;
 
 const tutorSchema = new Schema({
@@ -40,6 +36,7 @@ const tutorRequestSchema = new Schema({
 const Tutor_Request = mongoose.model("Tutor_Request", tutorRequestSchema);
 
 mongoose.connect(dbUrl, { dbName: 'tutor_queue' })
-    .catch((err) => { throw new Error(err) });
+    .then(() => console.log("connected to MongoDB"))
+    .catch((err) => console.error('failed to connect to MongoDB', err));
 
 export { Tutor, Course, Tutor_Request };
