@@ -187,7 +187,7 @@ export default function Dashboard() {
                                             onChange={handleChange}
                                             value={formData.category}
                                         >
-                                            <option value="Conceptual Help">
+                                            <option value="Conceptual Help" selected>
                                                 Conceptual Help
                                             </option>
                                             <option value="Debugging">
