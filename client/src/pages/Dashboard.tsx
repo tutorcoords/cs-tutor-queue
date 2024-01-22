@@ -188,7 +188,7 @@ export default function Dashboard() {
                                             value={formData.category}
                                         >
                                             <option value="Conceptual Help">
-                                                Conceptual
+                                                Conceptual Help
                                             </option>
                                             <option value="Debugging">
                                                 Debugging
