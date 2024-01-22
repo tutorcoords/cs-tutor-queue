@@ -5,11 +5,7 @@ import nodemailer from 'nodemailer';
 import { Tutor } from './database';
 import { internalServerError, invalidCredentialsError, unauthorizedError } from './utils/errors';
 
-if (!process.env.JWT_KEY) {
-    throw new Error('JWT_KEY is not defined');
-}
-
-const JWTKey = process.env.JWT_KEY;
+const JWTKey = process.env.JWT_KEY || "secret";
 
 const router = Router();
 

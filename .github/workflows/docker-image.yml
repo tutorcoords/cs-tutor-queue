@@ -3,6 +3,8 @@ name: Build and Publish Docker image
 on:
   push:
     branches: [ 'main' ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs: 
   build_and_push_image:
