@@ -135,6 +135,12 @@ export default function Dashboard() {
         event.preventDefault();
         const form = event.currentTarget as HTMLFormElement;
 
+        //clear the form
+        setFormData({
+            category: '',
+            comment: ''
+        });
+
         //checks if form is valid
         if (form.checkValidity() === false) {
             event.stopPropagation();
