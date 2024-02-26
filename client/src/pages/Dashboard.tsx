@@ -15,7 +15,7 @@ export default function Dashboard() {
     const [requestsLoading, setRequestsLoading] = useState(false);
     const [queueLoading, setQueueLoading] = useState(false);
     const [formData, setFormData] = useState({
-        category: '',
+        category: 'Conceptual Help',
         comment: ''
     });
 
@@ -135,6 +135,12 @@ export default function Dashboard() {
         event.preventDefault();
         const form = event.currentTarget as HTMLFormElement;
 
+        //clear the form
+        setFormData({
+            category: 'Conceptual Help',
+            comment: ''
+        });
+
         //checks if form is valid
         if (form.checkValidity() === false) {
             event.stopPropagation();
@@ -187,8 +193,8 @@ export default function Dashboard() {
                                             onChange={handleChange}
                                             value={formData.category}
                                         >
-                                            <option value="Conceptual Help">
-                                                Conceptual
+                                            <option selected value="Conceptual Help">
+                                                Conceptual Help
                                             </option>
                                             <option value="Debugging">
                                                 Debugging
