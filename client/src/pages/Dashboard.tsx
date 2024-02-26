@@ -15,7 +15,7 @@ export default function Dashboard() {
     const [requestsLoading, setRequestsLoading] = useState(false);
     const [queueLoading, setQueueLoading] = useState(false);
     const [formData, setFormData] = useState({
-        category: '',
+        category: 'Conceptual Help',
         comment: ''
     });
 
@@ -137,7 +137,7 @@ export default function Dashboard() {
 
         //clear the form
         setFormData({
-            category: '',
+            category: 'Conceptual Help',
             comment: ''
         });
 
