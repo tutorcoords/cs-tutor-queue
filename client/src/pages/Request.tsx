@@ -201,6 +201,9 @@ export default function Request() {
                             />
                             <div className="invalid-feedback">Please provide a valid description.</div>
                         </div>
+                        <p style={{ marginTop: 0 }}>
+                            By submitting, you acknowledge and agree that your information may be shared within the department for the purpose of facilitating academic support.
+                        </p>
                         {submitting ? (<button className="btn btn-blue" type="button" style={{ marginBottom: 25 }} disabled>
                             <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             &nbsp;&nbsp;Loading...
