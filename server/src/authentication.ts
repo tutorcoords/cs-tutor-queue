@@ -61,7 +61,7 @@ export const checkAuthenticated = (req: Request, res: Response, next: NextFuncti
 //login route
 router.post('/login', checkNotAuthenticated, (req, res) => {
     const { email, password } = req.body;
-    Tutor.findOne({ email: email }).then((tutor) => {
+    Tutor.findOne({ email: { $eq: email } }).then((tutor) => {
         if (!tutor) {
             return res.status(400).json(invalidCredentialsError);
         }
@@ -88,7 +88,7 @@ router.post('/login', checkNotAuthenticated, (req, res) => {
 //register route
 router.post('/register', checkNotAuthenticated, (req, res) => {
     const { name, email, password } = req.body;
-    Tutor.findOne({ email: email }).then((tutor) => {
+    Tutor.findOne({ email: { $eq: email } }).then((tutor) => {
         if (tutor) {
             return res.status(400).json({ msg: 'email already in use' });
         }
@@ -115,7 +115,7 @@ router.post('/register', checkNotAuthenticated, (req, res) => {
 //create a reset password request route
 router.post('/resetPassword', checkNotAuthenticated, async (req, res) => {
     const { email } = req.body;
-    Tutor.findOne({ email: email }).then((tutor) => {
+    Tutor.findOne({ email: { $eq: email } }).then((tutor) => {
         if (!tutor) {
             return res.status(200).json({ msg: 'reset request placed successfully' });
         }
