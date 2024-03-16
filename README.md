@@ -20,12 +20,12 @@ The recommended method to running the project is through Docker. Be sure to inst
 
 To get the most current image, be sure to run:
 
-`sudo docker pull tutorcoords/cs-tutor-queue:main` 
+`sudo docker pull tutorcoords/tc:latest` 
 
 Once the updated image is pulled and all other docker containers being ran on port 3000 are killed, run:
 
-`sudo docker run -p 3000:3000 -d --env-file <PATH TO ENV FILE>  tutorcoords/cs-tutor-queue:main`
+`sudo docker run -p 3000:3000 -d --env-file <PATH TO ENV FILE>  tutorcoords/tc:latest`
 
 This will host the project on port 3000.
 
-NOTE: The docker hub image (where you are getting the projects docker image from) is automatically updated through github actions whenever something is pushed to the main branch. This ensures it is always up to date. The docker image can also be built manually (`docker build -t <DESIRED IMAGE NAME> .` within the main directory) and ran with the same command (the `tutorcoords/cs-tutor-queue:main` would need to be replaced with whatever you named your local image).
+NOTE: The docker hub image (where you are getting the projects docker image from) is automatically updated through github actions whenever something is pushed to the main branch. This ensures it is always up to date. The docker image can also be built manually (`docker build -t <DESIRED IMAGE NAME> .` within the main directory) and ran with the same command (the `tutorcoords/tc:latest` would need to be replaced with whatever you named your local image).
