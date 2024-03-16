@@ -62,7 +62,7 @@ router.get('/helping', checkAuthenticated, (req: Request, res: Response) => {
 
 //creates a new request
 router.post('/request', async (req: Request, res: Response) => {
-    const { name, email, course, description } = req.body;
+    const { name, email, course, professor, description } = req.body;
     const [code] = course.split(' - ');
 
     Course.findOne({ code })
@@ -74,6 +74,7 @@ router.post('/request', async (req: Request, res: Response) => {
                 name: name,
                 email: email,
                 _course: course,
+                professor: professor,
                 description: description,
                 status: 'WAITING',
                 _tutor: null,

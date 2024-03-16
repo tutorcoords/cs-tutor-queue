@@ -28,6 +28,7 @@ const tutorRequestSchema = new Schema({
     name: String,
     email: String,
     _course: courseSchema,
+    professor: String,
     description: String,
     status: String,
     _tutor: { type: tutorSchema, default: null },

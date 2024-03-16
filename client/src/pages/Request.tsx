@@ -8,6 +8,7 @@ export default function Request() {
         name: '',
         email: '',
         course: '',
+        professor: '',
         description: '',
     });
     const [courses, setCourses] = useState<string[]>([]);
@@ -71,6 +72,7 @@ export default function Request() {
                     name: '',
                     email: '',
                     course: '',
+                    professor: '',
                     description: '',
                 });
                 setTimeout(() => {
@@ -186,6 +188,21 @@ export default function Request() {
                                 ))}
                             </select>
                             <div className="invalid-feedback">Please choose a course.</div>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="inputProfessor">Professor</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                id="inputProfessor"
+                                name="professor"
+                                aria-describedby="professorsub"
+                                placeholder="Enter Professor"
+                                value={formData.professor}
+                                onChange={handleChange}
+                                required
+                            />
+                            <div className="invalid-feedback">Please provide a valid professor.</div>
                         </div>
                         <div className="form-group">
                             <label htmlFor="inputDescription">Description</label>
