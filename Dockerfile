@@ -24,4 +24,4 @@ EXPOSE 3000
 
 RUN npm run build
 
-CMD ["node", "--env-file", ".env", "dist/index.js"]
+CMD ["node", "dist/index.js"]
