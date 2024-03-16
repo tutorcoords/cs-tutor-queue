@@ -55,8 +55,8 @@ export default function Login() {
             try {
                 const response = await api.post('/login', formData);
                 const { token, name } = response.data;
-                Cookies.set('token', token, { expires: 30, secure: true, sameSite: 'None' });
-                Cookies.set('name', name, { expires: 30, secure: true, sameSite: 'None' });
+                Cookies.set('token', token, { expires: 30, secure: true, sameSite: 'strict' });
+                Cookies.set('name', name, { expires: 30, secure: true, sameSite: 'strict' });
                 navigate('/dashboard');
             } catch (error) {
                 if (axios.isAxiosError(error) && error.response && error.response.status === 400) {

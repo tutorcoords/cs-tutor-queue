@@ -1,10 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import JWT, { JwtPayload } from 'jsonwebtoken';
+import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import { Tutor } from './database';
 import { internalServerError, invalidCredentialsError, unauthorizedError } from './utils/errors';
 
+dotenv.config();
 const JWTKey = process.env.JWT_KEY || "secret";
 
 const router = Router();

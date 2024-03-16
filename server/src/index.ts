@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import authRoutes from './authentication';
 import routes from './routes';
@@ -6,6 +7,8 @@ import path from 'path';
 
 const app = express();
 const port = 3000;
+
+dotenv.config();
 
 app.use(express.static('client-dist'));
 
