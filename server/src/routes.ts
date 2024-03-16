@@ -44,7 +44,7 @@ router.get('/queue', checkAuthenticated, (req: Request, res: Response) => {
 
 //returns a tutors current request
 router.get('/helping', checkAuthenticated, (req: Request, res: Response) => {
-    Tutor.findOne({ email: req.body.email })
+    Tutor.findOne({ email: { $eq: req.body.email } })
         .populate('_currentRequest')
         .then((tutor) => {
             if (!tutor) {
@@ -94,7 +94,7 @@ router.post('/request', async (req: Request, res: Response) => {
 
 //lets a tutor help a request
 router.post('/help', checkAuthenticated, (req: Request, res: Response) => {
-    Tutor.findOne({ email: req.body.email })
+    Tutor.findOne({ email: { $eq: req.body.email } })
         .then((tutor) => {
             if (!tutor) {
                 return res.status(500).send(internalServerError);
@@ -102,7 +102,7 @@ router.post('/help', checkAuthenticated, (req: Request, res: Response) => {
             if (tutor._currentRequest) {
                 return res.status(400).send({ msg: 'already helping someone' });
             }
-            Tutor_Request.findOne({ _id: req.body.requestId })
+            Tutor_Request.findOne({ _id: { $eq: req.body.requestId } })
                 .then((request) => {
                     if (!request) {
                         return res.status(500).send(internalServerError);
@@ -138,7 +138,7 @@ router.post('/help', checkAuthenticated, (req: Request, res: Response) => {
 
 //lets a tutor complete a request
 router.post('/complete', checkAuthenticated, (req: Request, res: Response) => {
-    Tutor.findOne({ email: req.body.email })
+    Tutor.findOne({ email: { $eq: req.body.email } })
         .then((tutor) => {
             if (!tutor) {
                 return res.status(500).send(internalServerError);
@@ -146,7 +146,7 @@ router.post('/complete', checkAuthenticated, (req: Request, res: Response) => {
             if (!tutor._currentRequest) {
                 return res.status(500).send(internalServerError);
             }
-            Tutor_Request.findOne({ _id: req.body.requestId })
+            Tutor_Request.findOne({ _id: { $eq: req.body.requestId } })
                 .then((request) => {
                     if (!request) {
                         return res.status(400).send(internalServerError);
@@ -180,7 +180,7 @@ router.post('/complete', checkAuthenticated, (req: Request, res: Response) => {
 
 //lets tutor comment on a request
 router.post('/comment', checkAuthenticated, (req: Request, res: Response) => {
-    Tutor.findOne({ email: req.body.email })
+    Tutor.findOne({ email: { $eq: req.body.email } })
         .then((tutor) => {
             if (!tutor) {
                 return res.status(500).send(internalServerError);
@@ -188,7 +188,7 @@ router.post('/comment', checkAuthenticated, (req: Request, res: Response) => {
             if (!tutor._currentRequest) {
                 return res.status(500).send(internalServerError);
             }
-            Tutor_Request.findOne({ _id: req.body.requestId })
+            Tutor_Request.findOne({ _id: { $eq: req.body.requestId } })
                 .then((request) => {
                     if (!request) {
                         return res.status(400).send(internalServerError);
