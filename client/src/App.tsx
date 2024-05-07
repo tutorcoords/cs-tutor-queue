@@ -9,6 +9,8 @@ import NewPassword from "./pages/NewPassword";
 import cslogo from "./assets/cs-logo.png";
 import avatar from "./assets/avatar.jpeg";
 import PrivateRoute from "./utils/PrivateRoute";
+import CoordinatorRoute from "./utils/CoordinatorRoute";
+import CoordinatorProfile from "./pages/CoordinatorProfile";
 
 export default function App() {
   const navigate = useNavigate();
@@ -55,7 +57,7 @@ export default function App() {
             aria-labelledby="dropdownMenuButton"
             data-placement="bottom-center"
           >
-            <Link className="dropdown-item" to="/profile">Profile</Link>
+            <Link className="dropdown-item" to="/coordinatorprofile">Profile</Link>
             <Link className="dropdown-item" to="/dashboard">Tutor Dashboard</Link>
             <Link className="dropdown-item" to="/request">Request Form</Link>
             <button className="dropdown-item" onClick={logout}>Logout</button>
@@ -72,6 +74,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/request" element={<Request />} />
+          <Route path="/coordinatorprofile" element={<CoordinatorRoute><CoordinatorProfile /></CoordinatorRoute>} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/resetpassword" element={<ResetPassword />} />
           <Route path="/resetpassword/:id/:token" element={<NewPassword />} />

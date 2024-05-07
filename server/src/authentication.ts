@@ -3,7 +3,7 @@ import JWT, { JwtPayload } from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
-import { Tutor } from './database';
+import { Tutor, Tutor_Request } from './database';
 import { internalServerError, invalidCredentialsError, unauthorizedError } from './utils/errors';
 
 dotenv.config();
@@ -20,7 +20,7 @@ var transporter = nodemailer.createTransport({
     }
 });
 
-//middleware
+//middleware, works as named
 export const checkNotAuthenticated = (req: Request, res: Response, next: NextFunction) => {
     const header = req.get('Authorization');
     if (!header) {
@@ -58,6 +58,32 @@ export const checkAuthenticated = (req: Request, res: Response, next: NextFuncti
     next();
 }
 
+export const checkCoordinator = (req: Request, res: Response, next: NextFunction) => {
+    const token = req.get('Authorization')?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json(unauthorizedError);
+    }
+    try {
+        const decodedToken = JWT.verify(token, process.env.JWT_KEY || "secret") as JwtPayload;
+        const email = decodedToken.email;
+        Tutor.findOne({ email }).then((tutor) => {
+            if (!tutor) {
+                return res.status(500).json(internalServerError);
+            }
+            if (tutor.coordinator) {
+                req.body.email = email;
+                next();
+            } else {
+                return res.status(401).json(unauthorizedError);
+            }
+        }).catch((err) => {
+            return res.status(500).json(internalServerError);
+        });
+    } catch (err) {
+        return res.status(500).json(internalServerError);
+    }
+};
+
 //login route
 router.post('/login', checkNotAuthenticated, (req, res) => {
     const { email, password } = req.body;
@@ -65,6 +91,11 @@ router.post('/login', checkNotAuthenticated, (req, res) => {
         if (!tutor) {
             return res.status(400).json(invalidCredentialsError);
         }
+
+        if (!tutor.active) {
+            return res.status(400).json(invalidCredentialsError);
+        }
+
         bcrypt.compare(password, tutor.hash as string, (err, result) => {
             if (err) {
                 return res.status(500).json(internalServerError);
@@ -86,8 +117,9 @@ router.post('/login', checkNotAuthenticated, (req, res) => {
 });
 
 //register route
-router.post('/register', checkNotAuthenticated, (req, res) => {
+router.post('/register', (req, res) => {
     const { name, email, password } = req.body;
+
     Tutor.findOne({ email: { $eq: email } }).then((tutor) => {
         if (tutor) {
             return res.status(400).json({ msg: 'email already in use' });
@@ -100,6 +132,7 @@ router.post('/register', checkNotAuthenticated, (req, res) => {
                 name,
                 email,
                 hash,
+                active: true,
             });
             newTutor.save().then(() => {
                 return res.status(200).json({ msg: 'successfully registered' });
@@ -119,6 +152,11 @@ router.post('/resetPassword', checkNotAuthenticated, async (req, res) => {
         if (!tutor) {
             return res.status(200).json({ msg: 'reset request placed successfully' });
         }
+
+        if (!tutor.active) {
+            return res.status(400).json(invalidCredentialsError);
+        }
+
         const secret = JWTKey + tutor.id;
         const token = JWT.sign({
             email
@@ -150,6 +188,9 @@ router.post('/resetPassword/:id/:token', checkNotAuthenticated, async (req, res)
         if (!tutor) {
             return res.status(400).json(invalidCredentialsError);
         }
+        if (!tutor.active) {
+            return res.status(400).json(invalidCredentialsError);
+        }
         const secret = JWTKey + tutor.id;
         try {
             JWT.verify(token, secret);
@@ -173,8 +214,121 @@ router.post('/resetPassword/:id/:token', checkNotAuthenticated, async (req, res)
 }
 );
 
+//set inactive route
+router.post('/setInactive', checkAuthenticated, checkCoordinator, (req, res) => {
+    Tutor.findOne({ email: { $eq: req.body.email } }).then((tutor) => {
+        if (!tutor) {
+            return res.status(500).json(internalServerError);
+        }
+        if (tutor._currentRequest) {
+            Tutor_Request.findOne({ _id: { $eq: tutor._currentRequest } }).then((request) => {
+                if (!request) {
+                    return res.status(500).json(internalServerError);
+                }
+                if (request.status === 'IN PROGRESS' || request.status === 'COMMENTING') {
+                    request.status = 'COMPLETED';
+                    if (request.status === 'IN PROGRESS') {
+                        request.completed = new Date();
+                    }
+                    request.category = 'OTHER';
+                    request.comment = 'N/A';
+                    request.save().then(() => {
+                        tutor.active = false;
+                        tutor._currentRequest = null;
+                        tutor.save().then(() => {
+                            return res.status(200).json({ msg: 'successfully set inactive' });
+                        }).catch((err) => {
+                            return res.status(500).json(internalServerError);
+                        });
+                    }).catch((err) => {
+                        return res.status(500).json(internalServerError);
+                    });
+                }
+                else {
+                    tutor.active = false;
+                    tutor._currentRequest = null;
+                    tutor.save().then(() => {
+                        return res.status(200).json({ msg: 'successfully set inactive' });
+                    }).catch((err) => {
+                        return res.status(500).json(internalServerError);
+                    });
+                }
+            }).catch((err) => {
+                return res.status(500).json(internalServerError);
+            });
+        } else {
+            tutor.active = false;
+            tutor.save().then(() => {
+                return res.status(200).json({ msg: 'successfully set inactive' });
+            }).catch((err) => {
+                return res.status(500).json(internalServerError);
+            });
+        }
+    }).catch((err) => {
+        return res.status(500).json(internalServerError);
+    });
+});
+
+//set active route
+router.post('/setActive', checkAuthenticated, checkCoordinator, (req, res) => {
+    Tutor.findOne({ email: { $eq: req.body.email } }).then((tutor) => {
+        if (!tutor) {
+            return res.status(500).json(internalServerError);
+        }
+        tutor.active = true;
+        tutor.save().then(() => {
+            return res.status(200).json({ msg: 'successfully set active' });
+        }).catch((err) => {
+            return res.status(500).json(internalServerError);
+        });
+    }).catch((err) => {
+        return res.status(500).json(internalServerError);
+    });
+});
+
+//set coordinator route
+router.post('/setCoordinator', checkAuthenticated, checkCoordinator, (req, res) => {
+    const { email } = req.body;
+    Tutor.findOne({ email: { $eq: email } }).then((tutor) => {
+        if (!tutor) {
+            return res.status(400).json(invalidCredentialsError);
+        }
+        tutor.coordinator = true;
+        tutor.save().then(() => {
+            return res.status(200).json({ msg: 'successfully set coordinator' });
+        }).catch((err) => {
+            return res.status(500).json(internalServerError);
+        });
+    }).catch((err) => {
+        return res.status(500).json(internalServerError);
+    });
+});
+
+//unset coordinator route
+router.post('/unsetCoordinator', checkAuthenticated, checkCoordinator, (req, res) => {
+    const { email } = req.body;
+    Tutor.findOne({ email: { $eq: email } }).then((tutor) => {
+        if (!tutor) {
+            return res.status(400).json(invalidCredentialsError);
+        }
+        tutor.coordinator = false;
+        tutor.save().then(() => {
+            return res.status(200).json({ msg: 'successfully unset coordinator' });
+        }).catch((err) => {
+            return res.status(500).json(internalServerError);
+        });
+    }).catch((err) => {
+        return res.status(500).json(internalServerError);
+    });
+});
+
 //isAuthenticated route
 router.get('/isAuthenticated', checkAuthenticated, (req, res) => {
+    res.json({ email: req.body.email });
+});
+
+//isCoordinator route
+router.get('/isCoordinator', checkAuthenticated, checkCoordinator, (req, res) => {
     res.json({ email: req.body.email });
 });
 

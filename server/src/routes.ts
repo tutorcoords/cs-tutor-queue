@@ -1,13 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { Tutor, Course, Tutor_Request } from './database';
-import { checkAuthenticated } from './authentication';
+import { checkAuthenticated, checkCoordinator } from './authentication';
 import { internalServerError } from './utils/errors';
 
 const router = Router();
 
 //returns courses for request page
 router.get('/courses', (req: Request, res: Response) => {
-    Course.find({})
+    Course.find({ active: true })
         .sort({ code: 1 })
         .then((courses) => {
             res.status(200).send(courses);
@@ -99,6 +99,9 @@ router.post('/help', checkAuthenticated, (req: Request, res: Response) => {
             if (!tutor) {
                 return res.status(500).send(internalServerError);
             }
+            if (!tutor.active) {
+                return res.status(400).json({ msg: 'tutor is inactive' });
+            }
             if (tutor._currentRequest) {
                 return res.status(400).send({ msg: 'already helping someone' });
             }
@@ -143,6 +146,9 @@ router.post('/complete', checkAuthenticated, (req: Request, res: Response) => {
             if (!tutor) {
                 return res.status(500).send(internalServerError);
             }
+            if (!tutor.active) {
+                return res.status(400).json({ msg: 'tutor is inactive' });
+            }
             if (!tutor._currentRequest) {
                 return res.status(500).send(internalServerError);
             }
@@ -185,6 +191,9 @@ router.post('/comment', checkAuthenticated, (req: Request, res: Response) => {
             if (!tutor) {
                 return res.status(500).send(internalServerError);
             }
+            if (!tutor.active) {
+                return res.status(400).json({ msg: 'tutor is inactive' });
+            }
             if (!tutor._currentRequest) {
                 return res.status(500).send(internalServerError);
             }
@@ -219,6 +228,35 @@ router.post('/comment', checkAuthenticated, (req: Request, res: Response) => {
                 .catch((err) => {
                     return res.status(500).send(internalServerError);
                 });
+        });
+});
+
+//add a course
+router.post('/addCourse', checkAuthenticated, checkCoordinator, (req: Request, res: Response) => {
+    const { name, code, professor } = req.body;
+    const course = new Course({
+        name: name,
+        code: code,
+        professor: professor,
+    });
+    course.save()
+        .then(() => {
+            return res.status(200).send({ msg: 'course added' });
+        })
+        .catch((err) => {
+            return res.status(500).send(internalServerError);
+        });
+});
+
+//delete a class
+router.post('/deleteCourse', checkAuthenticated, checkCoordinator, (req: Request, res: Response) => {
+    const { code, professor } = req.body;
+    Course.findOneAndUpdate({ code: code, professor: professor }, { active: false })
+        .then(() => {
+            return res.status(200).send({ msg: 'course deleted' });
+        })
+        .catch((err) => {
+            return res.status(500).send(internalServerError);
         });
 });
 
